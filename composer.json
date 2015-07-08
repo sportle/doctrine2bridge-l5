@@ -1,7 +1,7 @@
 {
-    "name": "opensolutions/doctrine2bridge-l5",
+    "name": "sportle/doctrine2bridge-l5",
     "description": "Adds the the power of Doctrine2 to Laravel 5 (with support for SQL logging and authentication)",
-    "homepage": "https://github.com/opensolutions/doctrine2bridge-l5",
+    "homepage": "https://github.com/sportle/doctrine2bridge-l5",
     "keywords": [ "laravel", "doctrine2" ],
     "license": "MIT",
     "authors": [
