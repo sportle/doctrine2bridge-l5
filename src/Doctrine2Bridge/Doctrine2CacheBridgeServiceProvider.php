@@ -155,7 +155,7 @@ class Doctrine2CacheBridgeServiceProvider extends \Illuminate\Support\ServicePro
         break;
 
       default:
-        throw new Exception\ImplementationNotFound( Config::get( 'cache.default' ) );
+        throw new \Exception\ImplementationNotFound( Config::get( 'cache.default' ) );
 
     }
   }
