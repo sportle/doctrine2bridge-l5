@@ -5,6 +5,7 @@ namespace Doctrine2Bridge;
 use Doctrine\Common\Cache\Cache;
 
 use Config;
+use Doctrine2Bridge\Exception\ImplementationNotFound;
 use Illuminate\Support\Facades\Redis;
 
 /**
@@ -155,7 +156,7 @@ class Doctrine2CacheBridgeServiceProvider extends \Illuminate\Support\ServicePro
         break;
 
       default:
-        throw new \Doctrine2Bridge\Exception\ImplementationNotFound( Config::get( 'cache.default' ) );
+        throw new ImplementationNotFound( Config::get( 'cache.default' ) );
 
     }
   }
