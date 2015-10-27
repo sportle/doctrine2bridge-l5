@@ -7,6 +7,8 @@ use Config;
 
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\AnnotationRegistry;
+use Doctrine\DBAL\Connections\MasterSlaveConnection;
+use Doctrine\DBAL\Driver\Mysqli\Driver;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityManager;
 use Doctrine\Common\Cache\Cache;
@@ -14,6 +16,8 @@ use Doctrine\Common\Cache\Cache;
 use Doctrine\ORM\Mapping\ClassMetadataFactory;
 
 use Doctrine2Bridge\EventListeners\TablePrefix;
+
+use \Doctrine2Bridge\Support\Repository as D2Repository;
 
 use \Doctrine2Bridge\Support\Repository as D2Repository;
 
@@ -120,6 +124,12 @@ class Doctrine2BridgeServiceProvider extends \Illuminate\Support\ServiceProvider
       if( isset($lconfig['prefix']) && $lconfig['prefix'] && $lconfig['prefix'] !== '' ) {
         $tablePrefix = new TablePrefix( $lconfig['prefix']);
         $eventManager->addEventListener(Events::loadClassMetadata, $tablePrefix);
+      }
+
+      if(isset($lconfig['slaves'])) {
+        $driver = new Driver();
+        $connection = new MasterSlaveConnection($lconfig, $driver);
+        return EntityManager::create($connection, $dconfig);
       }
 
       return EntityManager::create( $lconfig, $dconfig );
@@ -231,15 +241,42 @@ class Doctrine2BridgeServiceProvider extends \Illuminate\Support\ServiceProvider
   {
     switch( Config::get( 'database.default' ) ) {
       case 'mysql':
-        return [
-            'driver'   => 'pdo_mysql',
-            'dbname'   => Config::get( 'database.connections.mysql.database' ),
-            'user'     => Config::get( 'database.connections.mysql.username' ),
-            'password' => Config::get( 'database.connections.mysql.password' ),
-            'host'     => Config::get( 'database.connections.mysql.host'     ),
-            'charset'  => Config::get( 'database.connections.mysql.charset'  ),
-            'prefix'   => Config::get( 'database.connections.mysql.prefix'   ),
-        ];
+        if(Config::has('database.connections.mysql.read')) {
+          return array(
+              'driver' => 'pdo_mysql',
+              'master' => array(
+                  'port' => '3306',
+                  'dbname' => Config::get('database.connections.mysql.database'),
+                  'user' => Config::get('database.connections.mysql.username'),
+                  'password' => Config::get('database.connections.mysql.password'),
+                  'host' => Config::get('database.connections.mysql.write.host'),
+                  'charset' => Config::get('database.connections.mysql.charset'),
+                  'prefix' => Config::get('database.connections.mysql.prefix'),
+              ),
+              'slaves' => array(
+                  array(
+                      'port' => '3306',
+                      'dbname' => Config::get('database.connections.mysql.database'),
+                      'user' => Config::get('database.connections.mysql.username'),
+                      'password' => Config::get('database.connections.mysql.password'),
+                      'host' => Config::get('database.connections.mysql.read.host'),
+                      'charset' => Config::get('database.connections.mysql.charset'),
+                      'prefix' => Config::get('database.connections.mysql.prefix'),
+                  ),
+              ),
+          );
+        }
+        else {
+          return [
+              'driver' => 'pdo_mysql',
+              'dbname' => Config::get('database.connections.mysql.database'),
+              'user' => Config::get('database.connections.mysql.username'),
+              'password' => Config::get('database.connections.mysql.password'),
+              'host' => Config::get('database.connections.mysql.host'),
+              'charset' => Config::get('database.connections.mysql.charset'),
+              'prefix' => Config::get('database.connections.mysql.prefix'),
+          ];
+        }
         break;
 
       case 'pgsql':
