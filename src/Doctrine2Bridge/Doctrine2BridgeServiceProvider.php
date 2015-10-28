@@ -19,8 +19,6 @@ use Doctrine2Bridge\EventListeners\TablePrefix;
 
 use \Doctrine2Bridge\Support\Repository as D2Repository;
 
-use \Doctrine2Bridge\Support\Repository as D2Repository;
-
 /**
  * Doctrine2 Bridge - Brings Doctrine2 to Laravel 5.
  *
