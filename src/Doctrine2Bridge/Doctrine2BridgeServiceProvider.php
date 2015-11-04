@@ -163,16 +163,19 @@ class Doctrine2BridgeServiceProvider extends \Illuminate\Support\ServiceProvider
 
       if(isset($lconfig['slaves'])) {
         $driver = new Driver();
+          $dconfig->setCustomDatetimeFunctions($this->datetime);
+          $dconfig->setCustomNumericFunctions($this->numeric);
+          $dconfig->setCustomStringFunctions($this->string);
         $connection = new MasterSlaveConnection($lconfig, $driver);
-        return EntityManager::create($connection, $dconfig);
+          $em = EntityManager::create( $connection, $dconfig );
+
+          return $em;
       }
 
+        $dconfig->setCustomDatetimeFunctions($this->datetime);
+        $dconfig->setCustomNumericFunctions($this->numeric);
+        $dconfig->setCustomStringFunctions($this->string);
         $em = EntityManager::create( $lconfig, $dconfig );
-        $em->extendAll(function (Configuration $configuration) {
-            $configuration->setCustomDatetimeFunctions($this->datetime);
-            $configuration->setCustomNumericFunctions($this->numeric);
-            $configuration->setCustomStringFunctions($this->string);
-        });
         return $em;
     });
 
