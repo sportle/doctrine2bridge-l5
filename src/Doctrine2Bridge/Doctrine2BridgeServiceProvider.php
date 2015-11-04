@@ -12,6 +12,7 @@ use Doctrine\DBAL\Driver\Mysqli\Driver;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityManager;
 use Doctrine\Common\Cache\Cache;
+use DoctrineExtensions\Query\Mysql;
 
 use Doctrine\ORM\Mapping\ClassMetadataFactory;
 
@@ -130,7 +131,13 @@ class Doctrine2BridgeServiceProvider extends \Illuminate\Support\ServiceProvider
         return EntityManager::create($connection, $dconfig);
       }
 
-      return EntityManager::create( $lconfig, $dconfig );
+        $em = EntityManager::create( $lconfig, $dconfig );
+        $em->extendAll(function (Configuration $configuration) {
+            $configuration->setCustomDatetimeFunctions($this->datetime);
+            $configuration->setCustomNumericFunctions($this->numeric);
+            $configuration->setCustomStringFunctions($this->string);
+        });
+        return $em;
     });
 
   }
