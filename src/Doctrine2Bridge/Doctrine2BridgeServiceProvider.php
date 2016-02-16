@@ -89,21 +89,22 @@ class Doctrine2BridgeServiceProvider extends \Illuminate\Support\ServiceProvider
     $d2em = $this->app->make( \Doctrine\ORM\EntityManagerInterface::class );
 
     $subscribers = Config::get( 'd2bdoctrine.subscribers' );
-    foreach($subscribers as $subscriberClass=>$deps) {
-      $sub = null;
-      if(count($deps) == 0) {
-        $sub = new $subscriberClass;
-      }
-      else {
-        $reflector = new \ReflectionClass($subscriberClass);
-        $args = array();
-        foreach($deps as $dep) {
-          $args[] = $this->app->make($dep);
+    if(isset($subscribers)) {
+      foreach ($subscribers as $subscriberClass => $deps) {
+        $sub = null;
+        if (count($deps) == 0) {
+          $sub = new $subscriberClass;
+        } else {
+          $reflector = new \ReflectionClass($subscriberClass);
+          $args = array();
+          foreach ($deps as $dep) {
+            $args[] = $this->app->make($dep);
+          }
+          $sub = $reflector->newInstanceArgs($args);
         }
-        $sub = $reflector->newInstanceArgs($args);
-      }
-      if(isset($sub)) {
-        $d2em->getEventManager()->addEventSubscriber($sub);
+        if (isset($sub)) {
+          $d2em->getEventManager()->addEventSubscriber($sub);
+        }
       }
     }
 
