@@ -46,5 +46,17 @@ return [
     'auth' => array(
         'enabled' => false,
         'entity'  => '\Entities\User'   // the Doctrine2 entity representing the user
-    )
+    ),
+
+    /*
+     * example of lifecycleEventSubscribers
+
+    'subscribers' => array(
+        '\Sportle\Events\EntityUpdatedSubscriber' => array(
+            \Sportle\Services\ElasticSearch\EventETLService::class,
+        ),
+    ),
+
+     */
+
 ];
